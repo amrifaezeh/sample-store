@@ -1,5 +1,6 @@
 const LocalStrategy = require('passport-local').Strategy
 const User = require('../models/User')
+const bcrypt = require('bcryptjs')
 
 module.exports = (passport) => {
     passport.serializeUser((user, next) => {
@@ -21,27 +22,20 @@ module.exports = (passport) => {
                 return next(err)
             }
      
-            // // user not found:
-            // if (user == null)
-            //     return next(new Error('User Not Found'))
+            // user not found:
+            if (user == null)
+                return next(new Error('User Not Found'))
      
-            // // check password:
-            // if (user.password != req.body.password){
-            //     return next(new Error('Incorrect Password'))
-            // }
-            if (user != null)
-                return next(new Error('User already exists, please log in.'))
-            // return next(null, user)
-            // creat the new user:
-            User.create({email:email, password:password}, (err, user) => {
-                if (err)
-                    return next(err)
-             
-                next(null, user)
-            })
+            // check password:
+            if (bcrypt.compareSync(password, user.password) == false)
+                return next(new Error('Incorrect Password'))
+            return next(null, user)    
+
+
         })
     })
     passport.use('localLogin', localLogin)
+
     const localRegister = new LocalStrategy({
         usernameField: 'email',
         passwordField: 'password',
@@ -51,8 +45,17 @@ module.exports = (passport) => {
             if (err){
                 return next(err)
             }
+            if (user == null)
+                return next(new Error('User already exist,please log in.'))
                    
-                   //Room for more code!
+            //create the new user
+            const hashedPw = bcrypt.hashSync(password, 10)
+            User.create({email:email, password:hashedPw}, (err, user) => {
+                if (err)
+                    return next(err)
+ 
+                next(null, user)
+            })
 
         })
     })
