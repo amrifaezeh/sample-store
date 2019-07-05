@@ -4,35 +4,39 @@ const User = require('../models/User')
  
 router.post('/', (req, res, next) => {
     const email = req.body.email
-    User.find({email: email}, (err, users) => {
+    User.findOne({email: email}, (err, users) => {
         if (err){
             res.json({
                 confirmation: 'fail',
                 error: err
             })
      
-            return
+            return next(err)//We receive an actual error here
         }
      
-        if (users.length == 0){
-            res.json({
-                confirmation: 'fail',
-                error: 'User not found'
-            })
+        // if (users.length == 0){
+        //     return next(new Error('User Not Found')) //New Error with a string
+        //     // res.json({
+        //     //     confirmation: 'fail',
+        //     //     error: 'User not found'
+        //     // })
      
-            return
-        }
+        //     // return
+        // }
      
-        const user = users[0]
+        // const user = users[0]
 
+        // user not found:
+        if (user == null)
+            return next(new Error('User Not Found'))
         // check password:
         if (user.password != req.body.password){
-            res.json({
-                confirmation: 'fail',
-                error: 'Incorrect Password'
+            // res.json({
+            //     confirmation: 'fail',
+            //     error: 'Incorrect Password'
         
-            })
-            return
+            // })
+            return next(new Error('Incorrect Password')) //New Error with a string
         }
 
         res.json({

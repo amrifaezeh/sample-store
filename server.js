@@ -24,6 +24,12 @@ app.use('/', home) // Tell the path to use the route
 app.use('/register', register)//Connect the path and route
 app.use('/login', login)
 
+app.use((err, req, res, next) =>{
+	console.log('ERROR: ' + err)
+	res.render('error', {message: err})
+
+})
+
 app.get('/',(req, res, next)=>{
     res.send('this is the home route')
 
