@@ -36,33 +36,16 @@
 				<div class="col-8">
 					<h3>Item For Sale</h3>
 					<ol>
+						{{#items}}
 						<li>
-							<div class="item">Item 1<br/>
+							<div class="item">
+								{{name}}<br />
 							<button>Add</button>
 							</div>
 						</li>
-						<li>
-							<div class="item">Item 2<br/>
-							<button>Add</button>
-							</div>
-						</li>
-						<li>
-							<div class="item">Item 3<br/>
-							<button>Add</button>
-							</div>
-						</li>
-						<li>
-							<div class="item">Item 4<br/>
-							<button>Add</button>
-							</div>
-						</li>
-						<li>
-							<div class="item">Item 5<br/>
-							<button>Add</button>
-							</div>
-						</li>
+						{{/items}}
 					</ol>
-				</div>
+
 				<div class="col-4">
 					<h3>My Items</h3>
 				</div>
