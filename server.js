@@ -9,6 +9,7 @@ const home = require('./routes/home') // Importing the home route
 const register = require('./routes/register')//Import the register route
 const login = require('./routes/login')
 const account = require('./routes/account') //Import the account route
+const admin = require('./routes/admin')
 
 mongoose.connect('mongodb://localhost/sample-store', (err, data) => {
 	if (err){
@@ -37,17 +38,18 @@ app.use('/', home) // Tell the path to use the route
 app.use('/register', register)//Connect the path and route
 app.use('/login', login)
 app.use('/account', account)
+app.use('/admin', admin)
 
 app.use((err, req, res, next) =>{
 	console.log('ERROR: ' + err)
-	res.render('error', {message: err})
+	res.render('error', {message: err.message})
 
 })
 
-app.get('/',(req, res, next)=>{
-    res.send('this is the home route')
+// app.get('/',(req, res, next)=>{
+//     res.send('this is the home route')
 
-})
+// })
 
 app.listen(5000)
 console.log('App running on http://localhost:5000')

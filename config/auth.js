@@ -45,20 +45,25 @@ module.exports = (passport) => {
             if (err){
                 return next(err)
             }
-            if (user == null)
+            if (user != null)
                 return next(new Error('User already exist,please log in.'))
                    
-            //create the new user
+            // create the new user:
             const hashedPw = bcrypt.hashSync(password, 10)
-            User.create({email:email, password:hashedPw}, (err, user) => {
+            let isAdmin = false
+            if (email.indexOf('@zenva.com') != -1)
+                isAdmin = true
+            
+            User.create({email:email, password:hashedPw, isAdmin:isAdmin}, (err, user) => {
                 if (err)
                     return next(err)
- 
+            
                 next(null, user)
             })
 
         })
     })
+
     passport.use('localRegister', localRegister) //Implementing the New Strategy
  
 }

@@ -17,7 +17,7 @@ router.get('/', (req, res, next) => {
 	
 	const data = {
 		user: user,
-		items :item
+		items :items
 	}
  
 	res.render('account', data)
