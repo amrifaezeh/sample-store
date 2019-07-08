@@ -19,13 +19,18 @@ router.get('/', (req, res, next) => {
 	Item.find(null, (err, items) => {
 		if (err)
 			return next(err)
- 
-		const data = {
-			user: user,
-			items: items
-		}
+		Item.find({interested: user._id}, (err, interestedItems) =>{
+			if (err)
+				return next(err)
 
-		res.render('account', data)
+			const data = {
+				user: user,
+				items: items,
+				interested: interestedItems
+			}
+
+			res.render('account', data)
+		})
 	})
 })
 router.get('/additem/:itemid', (req, res, next) => {
@@ -42,9 +47,10 @@ router.get('/additem/:itemid', (req, res, next) => {
 		if (item.interested.indexOf(user._id) == -1){
 			item.interested.push(user._id)
 			item.save()
-			res.json({
-				item: item
-			})
+			res.redirect('/account')
+			// res.json({
+			// 	item: item
+			// })
 		}
 	 
 	})
