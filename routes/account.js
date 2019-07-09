@@ -1,5 +1,6 @@
 const express = require('express')
-const router = express.Router()
+const router = express.Router()	
+const Mailgun = require('mailgun-js')
 const Item = require('../models/Item')
 
 const randomString = (length) => {
@@ -79,14 +80,77 @@ router.post('/resetpassword', (req, res, next) => {
 		user.nonce = randomString(8)
 		user.passwordResetTime = new Date()
 		user.save()
- 
-		res.json({
-			confirmation: 'success',
-			data: 'reset password endpoint',
-			user: user
+
+		// Your apiKey and domain will be different from ours!
+		const mailgun = Mailgun({
+			apiKey: 'ed2da8db53b37ea12784e74ae22bc87d-afab6073-796dcef3',
+			domain: 'sandbox7782865b592749019e44232b640db3b8.mailgun.org'
+		})
+
+		const data = {
+			to: req.body.email,
+			from: 'amrifaezeh@gmail.com',
+			sender: 'Sample Store',
+			subject: 'Password Reset Request',
+			html: 'Please click <a style="color:red" href="http://localhost:5000/account/password-reset?nonce='+user.nonce+'&id='+user._id+'">HERE</a> to reset your password. This link is valid for 24 hours.'
+		}
+
+		mailgun.messages().send(data, (err, body) => {
+			if (err)
+				return next(err)
+		 
+			// success:
+			res.json({
+				confirmation: 'success',
+				data: 'reset password endpoint',
+				user: user
+			})
 		})
 	})
 })
 
+router.get('/password-reset', (req, res, next) => {
+	const nonce = req.query.nonce
+	if (nonce == null){
+		return next(new Error('Invalid Request'))
+	}
+	const user_id = req.query.id
+	if (user_id == null){
+		return next(new Error('Invalid Request'))
+	}
+	// res.json({
+	// 	nonce: nonce,
+	// 	id:user_id
+	// })
+	User.findById(user_id, (err, user) => {
+		if (err){
+			return next(new Error('Invalid Request'))
+		}
+	 
+		if (user.passwordResetTime == null){
+			return next(new Error('Invalid Request'))
+		}
+	 
+		if (user.nonce == null){
+			return next(new Error('Invalid Request'))
+		}
+		if (nonce != user.nonce){
+			return next(new Error('Invalid Request'))
+		}
+		const now = new Date()
+		const diff = now - user.passwordResetTime // time in milliseconds
+		const seconds = diff/1000
+
+		if (seconds > 24*60*60){
+			return next(new Error('Invalid Request'))
+		}
+
+		res.json({
+			user: user,
+			diff: seconds
+		})
+	 
+	})
+})
  
 module.exports = router
