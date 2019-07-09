@@ -1,6 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const Item = require('../models/Item')
+
+const randomString = (length) => {
+	let text = ''
+	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	for (let i=0; i<length; i++){
+		text += possible.charAt(Math.floor(Math.random() * possible.length))
+	}
+ 
+	return text
+}
 // const items = [
 // 	{name:'Item 1', description:'', price:10},
 // 	{name:'Item 2', description:'', price:20},
@@ -59,5 +69,24 @@ router.get('/logout', (req, res, next) => {
 	req.logout()
 	res.redirect('/')
 })
+
+router.post('/resetpassword', (req, res, next) => {
+
+	User.findOne({email: req.body.email}, (err, user) => {
+		if (err)
+			return next(err)
+
+		user.nonce = randomString(8)
+		user.passwordResetTime = new Date()
+		user.save()
+ 
+		res.json({
+			confirmation: 'success',
+			data: 'reset password endpoint',
+			user: user
+		})
+	})
+})
+
  
 module.exports = router
